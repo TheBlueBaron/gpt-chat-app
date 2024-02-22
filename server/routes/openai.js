@@ -78,4 +78,31 @@ router.post("/code", async (req, res) => {
   }
 });
 
+router.post("/assist", async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo-preview",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        {
+          role: "user",
+          content: `Finish my thought using no more than 3 words: ${text}`,
+        },
+      ],
+      temperature: 1,
+      max_tokens: 1024,
+      top_p: 1,
+      frequency_penalty: 0.5,
+      presence_penalty: 0,
+    });
+
+    res.status(200).json({ text: response.choices[0]?.message?.content });
+  } catch (error) {
+    console.error("error", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
